@@ -62,7 +62,16 @@ fun Screen01(modifier: Modifier = Modifier) {
                             onTap = { offset ->
                                 bluePosX = offset.x
                                 bluePosY = offset.y
+                            },
+                            onDoubleTap = {
+                                redPosX = (0..size.width.toInt()).random().toFloat()
+                                redPosY = (0..size.height.toInt()).random().toFloat()
+                            },
+                            onLongPress = { offset ->
+                                redPosX = offset.x
+                                redPosY = offset.y
                             }
+
                         )
                     }
             ) {
