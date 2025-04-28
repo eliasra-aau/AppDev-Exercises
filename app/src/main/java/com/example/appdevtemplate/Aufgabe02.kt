@@ -102,6 +102,3 @@ fun Screen02(modifier: Modifier = Modifier) {
 
     }
 }
-
-class Stroke(val path : List<Offset>,
-             val strokeWidth : Float)
