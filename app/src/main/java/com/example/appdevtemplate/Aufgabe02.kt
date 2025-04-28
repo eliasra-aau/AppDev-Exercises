@@ -15,6 +15,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.material3.Slider
+import androidx.compose.material3.Text
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PointMode
 import androidx.compose.ui.input.pointer.pointerInput
@@ -37,35 +45,63 @@ class Aufgabe02 : ComponentActivity() {
 @Composable
 fun Screen02(modifier: Modifier = Modifier) {
     val path = remember { mutableStateListOf<Offset>() }
-    val backlog = remember { mutableStateListOf<List<Offset>>() }
+    val backlog = remember { mutableStateListOf<Stroke>() }
+    var strokeWidth by remember { mutableFloatStateOf(3f) }
 
-    Canvas(
-        modifier = modifier
-            .fillMaxSize()
-            .background(Color.White)
-            .pointerInput(Unit) {
-                detectDragGestures(onDragEnd = {
-                    backlog.add(path.toList())
-                    path.clear()
-                }) { change, dragAmount ->
-                    path.add(change.position)
+    Column (modifier = modifier.fillMaxSize()) {
+        Box(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxSize()
+                .background(Color.White)
+
+        ) {
+            Canvas(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .pointerInput(Unit) {
+                        detectDragGestures(onDragEnd = {
+                            backlog.add(Stroke(path.toList(), strokeWidth))
+                            path.clear()
+                        }) { change, dragAmount ->
+                            path.add(change.position)
+                        }
+                    }
+                    .pointerInput(Unit) {
+                        detectTapGestures(
+                            onLongPress = {
+                                backlog.clear()
+                            }
+                        )
+                    }
+            ) {
+                drawPoints(
+                    points = path,
+                    strokeWidth = strokeWidth,
+                    pointMode = PointMode.Polygon,
+                    color = Color.Black
+                )
+                for (stroke in backlog) {
+                    drawPoints(
+                        points = stroke.path,
+                        strokeWidth = stroke.strokeWidth,
+                        pointMode = PointMode.Polygon,
+                        color = Color.Black
+                    )
                 }
             }
-    ) {
-        drawPoints(
-            points = path,
-            strokeWidth = 3f,
-            pointMode = PointMode.Polygon,
-            color = Color.Black
-        )
-        for(list in backlog) {
-            drawPoints(
-                points = list,
-                strokeWidth = 3f,
-                pointMode = PointMode.Polygon,
-                color = Color.Black
-            )
         }
+        Text(
+            text = String.format("Stroke Size: %.2f", strokeWidth*10) + "%"
+        )
+        Slider(
+            value = strokeWidth,
+            onValueChange = { strokeWidth = it },
+            valueRange = 0f..10f
+        )
+
     }
 }
 
+class Stroke(val path : List<Offset>,
+             val strokeWidth : Float)
